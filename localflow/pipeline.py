@@ -43,9 +43,9 @@ class PipelineWorker(QThread):
                 self.finished_text.emit(raw)
                 return
 
-            self.status_changed.emit("Responding..." if self._mode == "interact" else "Refining...")
+            self.status_changed.emit("Responding..." if self._mode in {"interact", "fitness", "todo"} else "Refining...")
             refined_parts: list[str] = []
-            for token in self._refiner.refine_stream(raw, self._mode):
+            for token in self._refiner.refine_stream(raw, self._mode, status_callback=self.status_changed.emit):
                 refined_parts.append(token)
                 self.refine_token.emit(token)
             refined = "".join(refined_parts).strip()
